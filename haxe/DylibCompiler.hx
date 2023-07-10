@@ -1,4 +1,7 @@
+import sys.FileSystem;
 import sys.io.File;
+import sys.io.Process;
+import StringTools;
 
 class DylibCompiler {
   
@@ -6,17 +9,19 @@ class DylibCompiler {
     var dylibs:Array<String> = [];
     
     // Get the list of files in the folder
-    var files:Array<String> = File.listDir(folderPath);
+    var files:Array<String> = sys.FileSystem.readDirectory(folderPath);
     
     // Iterate through each file
     for (file in files) {
       // Check if the file has a .dylib extension
-      if (file.toLowerCase().endsWith(".dylib")) {
+      if (StringTools.endsWith(file.toLowerCase(), ".dylib")) {
         var filePath:String = folderPath + "/" + file;
         
         // Compile the dylib using the haxe command
         var command:String = "haxe --cpp dylib \"" + filePath + "\"";
-        var output:String = Sys.commandOutput(command);
+        var process = new sys.io.Process(command);
+        var output:String = process.stdout.readAll().toString();
+        process.close();
         
         // Check if the compilation was successful
         if (output.indexOf("Compilation succeeded") != -1) {
